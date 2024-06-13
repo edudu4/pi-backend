@@ -8,10 +8,10 @@ const autenticar = (req, res, next) => {
             jwt.verify(token, process.env.SEGREDO);
             next();
         } catch (err) {
-            return res.status(401).json({ msg: "Token inválido" });
+            res.status(401).json({ msg: "Token inválido" });
         }
     }
-    return res.status(400).json({ msg: "Token não encontrado" });
+    res.status(400).json({ msg: "Token não encontrado" });
 
 }
 
@@ -20,16 +20,16 @@ const login = async (req, res) => {
     if (usuario) {
         const senhaCifrada = cifrarSenha(req.body.senha, usuario.salt);
         if (senhaCifrada === usuario.senha) {
-            return res.json({
+            res.json({
                 token: jwt.sign({ email: usuario.email }, process.env.SEGREDO, {
                     expiresIn: "5m",
                 }),
             });
         } else {
-            return res.status(401).json({ msg: "Acesso negado" });
+            res.status(401).json({ msg: "Acesso negado" });
         }
     }
-    return res.status(400).json({ msg: "Credenciais invalidas" });
+    res.status(400).json({ msg: "Credenciais invalidas" });
 }
 
 
@@ -38,16 +38,16 @@ const refreshToken = (req, res) => {
     if (token) {
         try {
             const payload = jwt.verify(token, process.env.SEGREDO);
-            return res.json({
+            res.json({
                 token: jwt.sign({ email: payload.email }, process.env.SEGREDO, {
                     expiresIn: "2m",
                 }),
             });
         } catch (err) {
-            return res.status(401).json({ msg: "token invalido" });
+            res.status(401).json({ msg: "token invalido" });
         }
     }
-    return res.status(400).json({ msg: "Token não encontrado" });
+    res.status(400).json({ msg: "Token não encontrado" });
 }
 
 module.exports = { autenticar, login, refreshToken };
