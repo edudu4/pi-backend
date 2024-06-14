@@ -1,7 +1,14 @@
 const express = require('express');
+const produtoController = require('../controllers/produto_controller');
+const usuarioController = require('../controllers/usuario_controller');
 
-const produtoRouter = express.Router();
+const router = express.Router();
 
-// defina as rotas
+router.get('/', produtoController.listar);
+router.get('/:id', produtoController.buscarPorId, produtoController.buscar);
+router.post('/comprar', usuarioController.comprarProdutos);
+router.post('/', produtoController.criar);
+router.put('/:id', produtoController.buscarPorId, produtoController.atualizar);
+router.delete('/:id', produtoController.buscarPorId, produtoController.remover);
 
-module.exports = produtoRouter;
+module.exports = router;

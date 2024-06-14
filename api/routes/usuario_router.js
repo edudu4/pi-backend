@@ -1,7 +1,11 @@
 const express = require('express');
+const usuarioController = require('../controllers/usuario_controller');
 
-const usuarioRouter = express.Router();
+const router = express.Router();
 
-// defina as rotas
+router.get('/', usuarioController.listar);
+router.get('/:id', usuarioController.buscarPorId, usuarioController.buscar);
+router.put('/:id', usuarioController.buscarPorId, usuarioController.atualizar);
+router.delete('/:id', usuarioController.buscarPorId, usuarioController.remover);
 
-module.exports = usuarioRouter;
+module.exports = router;
