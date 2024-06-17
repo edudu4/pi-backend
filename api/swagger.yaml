@@ -1,7 +1,400 @@
 openapi: 3.0.0
 info:
-  title:
-  version:
+  title: API Projeto Integrador BackEnd
+  version: 0.0.1
 tags:
+  - name: auth
+  - name: usuarios
+  - name: produtos
 paths:
+  /auth:
+    post:
+      summary: Login
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Login"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                example:
+                  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NmY1MmIyYjNjZDM4OTk0ZTk0MzExMCIsImlhdCI6MTcxODU3MTg3NSwiZXhwIjoxNzE4NTcyMTc1fQ.irXvmYThzq0D0N61tnRa_FJ0WRalGTBn6P8rjuIEw-w"
+        401:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+  /auth/refresh:
+    post:
+      summary: Refresh Token
+      tags:
+        - auth
+      security:
+        - JWTAuth: []
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                example:
+                  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2NmY1MmIyYjNjZDM4OTk0ZTk0MzExMCIsImlhdCI6MTcxODU3MTg3NSwiZXhwIjoxNzE4NTcyMTc1fQ.irXvmYThzq0D0N61tnRa_FJ0WRalGTBn6P8rjuIEw-w"
+        401:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+  /auth/cadastrar:
+    post:
+      summary: Cadastrar Usuário
+      tags:
+        - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Cadastrar"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+
+  /usuarios:
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - usuarios
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Usuario"
+  /usuarios/{id}:
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - usuarios
+      parameters:
+        - in: path
+          name: id
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+    put:
+      security:
+        - JWTAuth: []
+      tags:
+        - usuarios
+      parameters:
+        - in: path
+          name: id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UsuarioPUT"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Usuario"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+    delete:
+      security:
+        - JWTAuth: []
+      tags:
+        - usuarios
+      parameters:
+        - in: path
+          name: id
+          type: string
+      responses:
+        204:
+          content:
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+  /produtos:
+    post:
+      security:
+        - JWTAuth: []
+      tags:
+        - produtos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Produto"
+      responses:
+        201:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Produto"
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - produtos
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#components/schemas/Produto"
+  /produtos/{id}:
+    get:
+      security:
+        - JWTAuth: []
+      tags:
+        - produtos
+      parameters:
+        - in: path
+          name: id
+          type: string
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Produto"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+    put:
+      security:
+        - JWTAuth: []
+      tags:
+        - produtos
+      parameters:
+        - in: path
+          name: id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Produto"
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Produto"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+    delete:
+      security:
+        - JWTAuth: []
+      tags:
+        - produtos
+      parameters:
+        - in: path
+          name: id
+          type: string
+      responses:
+        204:
+          content:
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+  /produtos/comprar:
+    post:
+      summary: Comprar Produto
+      security:
+        - JWTAuth: []
+      tags:
+        - produtos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/Comprar"
+      responses:
+        201:
+          content:
+        422:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
+        404:
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mensagem"
 components:
+  securitySchemes:
+    JWTAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+  schemas:
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+        senha:
+          type: string
+    Cadastrar:
+      type: object
+      properties:
+        email:
+          type: string
+        senha:
+          type: string
+        nome:
+          type: string
+        idade:
+          type: number
+    Usuario:
+      type: object
+      properties:
+        _id:
+          type: string
+        email:
+          type: string
+        nome:
+          type: string
+        idade:
+          type: number
+        produtos:
+          $ref: "#/components/schemas/Produto"
+    UsuarioPUT:
+      type: object
+      properties:
+        email:
+          type: string
+        nome:
+          type: string
+        idade:
+          type: number
+        produtos:
+          $ref: "#/components/schemas/Produto"
+    Produto:
+      type: object
+      properties:
+        nome:
+          type: string
+        preco:
+          type: number
+        emEstoque:
+          type: boolean
+    Comprar:
+      type: object
+      properties:
+        _id:
+          type: string
+    Mensagem:
+      type: object
+      properties:
+        msg:
+          type: string

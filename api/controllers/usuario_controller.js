@@ -23,18 +23,21 @@ const comprarProdutos = async (req, res) => {
     const id = new mongoose.Types.ObjectId(req.usuarioAtualId);
     const usuario = await Usuario.findOne({ _id: id });
 
-    if (!Array.isArray(req.body)) res.status(400).json({ msg: 'É necessário uma lista de produtos' });
+    if (!req.body || !Array.isArray(req.body)) return res.status(422).json({ msg: 'É necessário uma lista de produtos' });
+
 
     for (let produtoDto of req.body) {
-        const produto = new Produto(produtoDto);
-        await produto.validate();
+        const id = new mongoose.Types.ObjectId(produtoDto._id);
+        const produto = await Produto.findOne({ _id: id });
+        if (!produto) return res.status(404).json({ msg: 'Produto não encontrado' });
+        console.log(produto);
         usuario.produtos.push(produto);
     }
 
     await usuario.validate();
     await usuario.save();
 
-    return res.status(201).json({ msg: 'Produto comprado com sucesso.' })
+    return res.status(201).json({ msg: 'Produto comprado com sucesso.' });
 }
 
 
@@ -58,7 +61,10 @@ const listar = async (req, res) => {
 const buscar = async (req, res) => {
     const id = new mongoose.Types.ObjectId(req.params.id);
     const usuario = await Usuario.findOne({ _id: id });
-    return res.json(usuario);
+    const usuarioSemSenha = usuario.toObject();
+    delete usuarioSemSenha.salt;
+    delete usuarioSemSenha.senha;
+    return res.json(usuarioSemSenha);
 }
 
 const criar = async (req, res) => {
@@ -73,8 +79,15 @@ const criar = async (req, res) => {
         salt,
     };
 
-    const usuarioSalvo = await Usuario.create(novoUsuario);
-    return res.status(201).json(usuarioSalvo);
+    try {
+        const usuarioSalvo = await Usuario.create(novoUsuario);
+        const usuarioSemSenha = usuarioSalvo.toObject();
+        delete usuarioSemSenha.salt;
+        delete usuarioSemSenha.senha;
+        return res.status(201).json(usuarioSemSenha);
+    } catch (err) {
+        return res.status(422).json({ msg: "Usuário já cadastrado" });
+    }
 }
 
 const atualizar = async (req, res) => {

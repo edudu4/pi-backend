@@ -4,7 +4,7 @@ const app = require("../app");
 
 const req = supertest(app);
 
-describe("API Projeto Integrador BackEnd - Usuario", () => {
+describe("API Projeto Integrador BackEnd - Auth", () => {
   let token = null;
   let usuario_id = null;
 
@@ -22,14 +22,13 @@ describe("API Projeto Integrador BackEnd - Usuario", () => {
     await req.delete(`/usuarios/${usuario_id}`).set('authorization', token);
   });
 
-  test("Deve retornar 201 e JSON no POST /auth",
+  test("Deve retornar 200 e JSON no POST /auth",
     async () => {
       const res = await req.post("/auth").send({
         email: "eduardoa81422@gmail.com",
         senha: "12345678"
       });
       token = res.body.token;
-      console.log("token:", token);
       expect(res.status).toBe(200);
       expect(res.type).toBe("application/json");
     });

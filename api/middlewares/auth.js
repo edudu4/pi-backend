@@ -24,7 +24,7 @@ const login = async (req, res) => {
         if (senhaCifrada === usuario.senha) {
             return res.json({
                 token: jwt.sign({ id: usuario._id }, process.env.SECRET, {
-                    expiresIn: "1h",
+                    expiresIn: "2m",
                 }),
             });
         } else {

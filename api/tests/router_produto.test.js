@@ -8,11 +8,27 @@ const req = supertest(app);
 
 let id = null;
 
-describe("API Projeto Integrador BackEnd - Usuario", () => {
+describe("API Projeto Integrador BackEnd - Produto", () => {
   let token = null;
+  let usuario_id = null;
 
-  beforeAll(() => {
-    token = jwt.sign({ username: 'testuser' }, process.env.SECRET, { expiresIn: '1h' });
+  beforeAll(async () => {
+    const res = await req.post("/auth/cadastrar").send({
+      email: "eduardoa814222@gmail.com",
+      nome: "Eduardo Alves",
+      idade: 23,
+      senha: "12345678"
+    });
+    const resLogin = await req.post("/auth").send({
+      email: "eduardoa814222@gmail.com",
+      senha: "12345678"
+    });
+    usuario_id = res.body._id;
+    token = resLogin.body.token;
+  }); 
+
+  afterAll(async () => {
+    await req.delete(`/usuarios/${usuario_id}`).set('authorization', token);
   });
 
   test("Deve retornar 201 e JSON no POST /produtos",
@@ -57,6 +73,27 @@ describe("API Projeto Integrador BackEnd - Usuario", () => {
     expect(res.type).toBe("application/json");
   });
 
+
+  test("Deve retornar 200 e JSON no POST /comprar", async () => {
+    console.log("produto:", id);
+    const res = await req.post(`/produtos/comprar/`).set('authorization', token).send([{
+    _id: id
+    }]);
+    expect(res.status).toBe(201);
+    expect(res.type).toBe("application/json");
+  });
+
+  test("Deve retornar 422 e JSON no POST /comprar", async () => {
+    const res = await req.post(`/produtos/comprar/`).set('authorization', token).send({});
+    expect(res.status).toBe(422);
+    expect(res.type).toBe("application/json");
+  }); 
+
+  test("Deve retornar 404 e JSON no POST /comprar", async () => {
+    const res = await req.post(`/produtos/comprar/`).set('authorization', token).send([{_id:'666fcb7ea91e0d42314b902c'}]);
+    expect(res.status).toBe(404);
+    expect(res.type).toBe("application/json");
+  }); 
 
   test("Deve retornar 200 e JSON no PUT /produtos/id", async () => {
     const res = await req.put(`/produtos/${id}`).set('authorization', token)
