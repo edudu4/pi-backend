@@ -19,11 +19,11 @@ const validar = async (req, res, next) => {
     }
 }
 
-const buscarPorId = async (req, res) => {
+const buscarPorId = async (req, res, next) => {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const produto = await Produto.findOne({ _id: id });
-        if (produto) next();
+        if (produto) return next();
         return res.status(404).json({ msg: 'Produto não encontrado' });
     } catch (err) {
         return res.status(400).json({ msg: 'Id inválido' });
@@ -43,14 +43,19 @@ const buscar = async (req, res) => {
 
 const criar = async (req, res) => {
     const produto = new Produto(req.body);
-    await Usuario.create(produto);
+    await Produto.create(produto);
     return res.status(201).json(produto);
 }
 
 const atualizar = async (req, res) => {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const produto = await Produto.findOneAndUpdate({ _id: id }, req.body);
-    return res.json(produto);
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const produto = await Produto.findOneAndUpdate({ _id: id }, req.body, { new: true, runValidators: true });
+        return res.json(produto);
+    }
+    catch (err) {
+        return res.status(422).json({ msg: `Campo ${err.path} inválido` });
+    }
 }
 
 const remover = async (req, res) => {

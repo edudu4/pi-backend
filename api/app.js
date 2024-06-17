@@ -7,6 +7,8 @@ require('dotenv').config();
 
 mongoose.connect(process.env.MONGODB_URL);
 
+const routerApidocs = require('./routes/apidocs_router');
+
 var usuarioRouter = require('./routes/usuario_router');
 var produtoRouter = require('./routes/produto_router');
 var authRouter = require('./routes/auth_router');
@@ -18,6 +20,8 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+app.use('/api-docs', routerApidocs);
 
 app.use('/auth', authRouter);
 app.use('/usuarios', authMiddleware.autenticar, usuarioRouter);
