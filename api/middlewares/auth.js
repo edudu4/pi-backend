@@ -39,9 +39,9 @@ const refreshToken = (req, res) => {
     const token = req.headers["authorization"];
     if (token) {
         try {
-            const payload = jwt.verify(token, process.env.SEGREDO);
+            const payload = jwt.verify(token, process.env.SECRET);
             return res.json({
-                token: jwt.sign({ email: payload.email }, process.env.SEGREDO, {
+                token: jwt.sign({ id: payload.id }, process.env.SECRET, {
                     expiresIn: "2m",
                 }),
             });
