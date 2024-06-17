@@ -8,7 +8,7 @@ router.get('/', produtoController.listar);
 router.get('/:id', produtoController.buscarPorId, produtoController.buscar);
 router.post('/comprar', usuarioController.comprarProdutos);
 router.post('/', produtoController.validar, produtoController.criar);
-router.put('/:id', produtoController.buscarPorId, produtoController.validar, produtoController.atualizar);
+router.put('/:id', produtoController.buscarPorId, produtoController.atualizar);
 router.delete('/:id', produtoController.buscarPorId, produtoController.remover);
 
 module.exports = router;
