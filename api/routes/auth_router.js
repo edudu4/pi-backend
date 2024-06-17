@@ -6,6 +6,6 @@ const router = express.Router();
 
 router.post('/', authMiddleware.login);
 router.post('/refresh', authMiddleware.refreshToken);
-router.post('/cadastrar', usuarioController.criar);
+router.post('/cadastrar', usuarioController.validar, usuarioController.criar);
 
 module.exports = router;

@@ -22,8 +22,7 @@ const userSchema = new mongoose.Schema({
         minlength: [8, 'Senha precisa ter pelo menos 8 caracteres']
     },
     salt: {
-        type: String,
-        required: [true, 'Salt é obrigatório']
+        type: String
     },
     produtos: [{
         type: mongoose.Schema.Types.ObjectId,

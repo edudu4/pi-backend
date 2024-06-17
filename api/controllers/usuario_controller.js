@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const mongoose = require("mongoose");
 
 const Usuario = require("../models/usuario");
 const Produto = require('../models/produto');
@@ -8,11 +9,10 @@ const cifrarSenha = (senha, salt) => {
     hash.update(senha);
     return hash.digest("hex");
 }
-const validar = async (req, res) => {
+const validar = async (req, res, next) => {
     try {
-        console.log("validou")
         const usuario = new Usuario(req.body);
-        await usuario.validate();
+        await usuario.validate(req.body);
         return next();
     } catch (err) {
         return res.status(422).json({ msg: "Usuário inválido" });
@@ -38,11 +38,11 @@ const comprarProdutos = async (req, res) => {
 }
 
 
-const buscarPorId = async (req, res) => {
+const buscarPorId = async (req, res, next) => {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const usuario = await Usuario.findOne({ _id: id });
-        if (usuario) next();
+        if (usuario) return next();
         return res.status(404).json({ msg: 'Usuário não encontrado' });
     } catch (err) {
         return res.status(400).json({ msg: 'Id inválido' });
@@ -50,8 +50,8 @@ const buscarPorId = async (req, res) => {
 };
 
 const listar = async (req, res) => {
-    const usuarios = await Usuario.find({});
-    const usuariosSemSenha = usuarios.map(({ senha, salt, ...usuarioSemSenha }) => usuarioSemSenha);
+    const usuarios = await Usuario.find().lean();
+    const usuariosSemSenha = usuarios.map(({ __v, senha, salt, ...usuarioSemSenha }) => usuarioSemSenha);
     return res.status(200).json(usuariosSemSenha);
 }
 
@@ -63,7 +63,6 @@ const buscar = async (req, res) => {
 
 const criar = async (req, res) => {
     let senha = req.body.senha;
-    if (!senha) return res.status(400).json({ msg: 'Senha inválida' });
     const salt = crypto.randomBytes(16).toString("hex");
     const senhaCifrada = cifrarSenha(senha, salt, res);
     const novoUsuario = {
@@ -74,14 +73,18 @@ const criar = async (req, res) => {
         salt,
     };
 
-    await Usuario.create(novoUsuario);
-    return res.status(201).json(novoUsuario);
+    const usuarioSalvo = await Usuario.create(novoUsuario);
+    return res.status(201).json(usuarioSalvo);
 }
 
 const atualizar = async (req, res) => {
-    const id = new mongoose.Types.ObjectId(req.params.id);
-    const usuario = await Usuario.findOneAndUpdate({ _id: id });
-    return res.json(usuario);
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const usuario = await Usuario.findOneAndUpdate({ _id: id }, req.body, { new: true, runValidators: true });
+        return res.json(usuario);
+    } catch (err) {
+        return res.status(422).json({ msg: `Campo ${err.path} inválido` });
+    }
 }
 
 const remover = async (req, res) => {
@@ -90,4 +93,4 @@ const remover = async (req, res) => {
     return res.status(204).end();
 }
 
-module.exports = { validar, comprarProdutos, buscarPorId, listar, buscar, criar, atualizar, remover };
+module.exports = { validar, cifrarSenha, comprarProdutos, buscarPorId, listar, buscar, criar, atualizar, remover };

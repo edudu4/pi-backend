@@ -1,13 +1,13 @@
 const jwt = require("jsonwebtoken");
 const Usuario = require('../models/usuario');
+const usuario_controller = require('../controllers/usuario_controller');
 
 const autenticar = (req, res, next) => {
     const token = req.headers["authorization"];
-
     if (token) {
         try {
-            const token = jwt.verify(token, process.env.SEGREDO);
-            req.usuarioAtualId = token.id;
+            const tokenVerificado = jwt.verify(token, process.env.SECRET);
+            req.usuarioAtualId = tokenVerificado.id;
             return next();
         } catch (err) {
             return res.status(401).json({ msg: "Acesso negado" });
@@ -20,11 +20,11 @@ const autenticar = (req, res, next) => {
 const login = async (req, res) => {
     const usuario = await Usuario.findOne({ email: req.body.email });
     if (usuario) {
-        const senhaCifrada = cifrarSenha(req.body.senha, usuario.salt);
+        const senhaCifrada = usuario_controller.cifrarSenha(req.body.senha, usuario.salt);
         if (senhaCifrada === usuario.senha) {
             return res.json({
-                token: jwt.sign({ id: usuario._id }, process.env.SEGREDO, {
-                    expiresIn: "5m",
+                token: jwt.sign({ id: usuario._id }, process.env.SECRET, {
+                    expiresIn: "1h",
                 }),
             });
         } else {
@@ -46,7 +46,7 @@ const refreshToken = (req, res) => {
                 }),
             });
         } catch (err) {
-            return res.status(401).json({ msg: "token invalido" });
+            return res.status(401).json({ msg: "Token invalido" });
         }
     }
     res.status(400).json({ msg: "Token não encontrado" });
